@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Domain Lookup</title>
+
+    <meta
+        name="description"
+        content="Look up public domain registration information using RDAP."
+    >
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <div class="background-glow glow-one"></div>
+    <div class="background-glow glow-two"></div>
+
+    <main class="app">
+
+        <!-- Header -->
+        <header class="header">
+            <div class="brand">
+                <div class="brand-icon">◎</div>
+
+                <div>
+                    <div class="brand-name">Domain Lookup</div>
+                    <div class="brand-subtitle">RDAP registration data</div>
+                </div>
+            </div>
+
+            <div class="status-badge">
+                <span class="status-dot"></span>
+                RDAP
+            </div>
+        </header>
+
+
+        <!-- Hero -->
+        <section class="hero">
+
+            <div class="eyebrow">
+                <span>DOMAIN INTELLIGENCE</span>
+            </div>
+
+            <h1>
+                Find who owns
+                <span>a domain.</span>
+            </h1>
+
+            <p class="hero-description">
+                Enter a domain name to retrieve publicly available
+                registration information.
+            </p>
+
+
+            <!-- Search -->
+            <form id="lookup-form" class="search-form">
+
+                <div class="input-wrapper">
+
+                    <span class="input-icon">⌕</span>
+
+                    <input
+                        id="domain-input"
+                        type="text"
+                        placeholder="example.com"
+                        autocomplete="off"
+                        spellcheck="false"
+                        aria-label="Domain name"
+                    >
+
+                    <button
+                        id="clear-button"
+                        type="button"
+                        class="clear-button hidden"
+                        aria-label="Clear domain"
+                    >
+                        ×
+                    </button>
+
+                </div>
+
+                <button
+                    id="lookup-button"
+                    type="submit"
+                    class="lookup-button"
+                >
+                    <span class="button-text">Look up</span>
+                    <span class="button-loader"></span>
+                </button>
+
+            </form>
+
+
+            <div
+                id="form-message"
+                class="form-message hidden"
+                role="alert"
+            ></div>
+
+
+            <div class="privacy-note">
+                <span class="lock-icon">⌁</span>
+
+                <span>
+                    Registration data may be redacted or privacy-protected.
+                    This tool cannot reveal private information.
+                </span>
+            </div>
+
+        </section>
+
+
+        <!-- Loading -->
+        <section
+            id="loading-state"
+            class="loading-state hidden"
+        >
+
+            <div class="loading-spinner"></div>
+
+            <div>
+                <strong>Looking up registration data</strong>
+                <span id="loading-domain"></span>
+            </div>
+
+        </section>
+
+
+        <!-- Error -->
+        <section
+            id="error-state"
+            class="error-state hidden"
+            role="alert"
+        >
+
+            <div class="error-icon">!</div>
+
+            <div>
+                <h3>Lookup failed</h3>
+                <p id="error-message"></p>
+            </div>
+
+        </section>
+
+
+        <!-- Results -->
+        <section
+            id="results"
+            class="results hidden"
+        >
+
+            <div class="results-header">
+
+                <div>
+                    <div class="results-label">
+                        REGISTRATION RESULT
+                    </div>
+
+                    <h2 id="result-domain">
+                        example.com
+                    </h2>
+                </div>
+
+                <div
+                    id="result-status"
+                    class="domain-status"
+                >
+                    Unknown
+                </div>
+
+            </div>
+
+
+            <div class="result-grid">
+
+                <!-- Registrant -->
+                <article class="result-card featured-card">
+
+                    <div class="card-header">
+                        <span class="card-icon">◉</span>
+                        <span>Registrant / Owner</span>
+                    </div>
+
+                    <div
+                        id="registrant-name"
+                        class="primary-value"
+                    >
+                        Not publicly available
+                    </div>
+
+                    <div
+                        id="registrant-org"
+                        class="secondary-value"
+                    ></div>
+
+                    <div
+                        id="registrant-location"
+                        class="secondary-value"
+                    ></div>
+
+                </article>
+
+
+                <!-- Registrar -->
+                <article class="result-card">
+
+                    <div class="card-header">
+                        <span class="card-icon">◆</span>
+                        <span>Registrar</span>
+                    </div>
+
+                    <div
+                        id="registrar-name"
+                        class="primary-value"
+                    >
+                        —
+                    </div>
+
+                    <div
+                        id="registrar-id"
+                        class="secondary-value"
+                    ></div>
+
+                </article>
+
+
+                <!-- Registration -->
+                <article class="result-card">
+
+                    <div class="card-header">
+                        <span class="card-icon">◷</span>
+                        <span>Registered</span>
+                    </div>
+
+                    <div
+                        id="registration-date"
+                        class="primary-value"
+                    >
+                        —
+                    </div>
+
+                </article>
+
+
+                <!-- Expiration -->
+                <article class="result-card">
+
+                    <div class="card-header">
+                        <span class="card-icon">◴</span>
+                        <span>Expiration</span>
+                    </div>
+
+                    <div
+                        id="expiration-date"
+                        class="primary-value"
+                    >
+                        —
+                    </div>
+
+                </article>
+
+
+                <!-- Updated -->
+                <article class="result-card">
+
+                    <div class="card-header">
+                        <span class="card-icon">↻</span>
+                        <span>Last Updated</span>
+                    </div>
+
+                    <div
+                        id="updated-date"
+                        class="primary-value"
+                    >
+                        —
+                    </div>
+
+                </article>
+
+
+                <!-- Status -->
+                <article class="result-card status-card">
+
+                    <div class="card-header">
+                        <span class="card-icon">●</span>
+                        <span>Domain Status</span>
+                    </div>
+
+                    <div
+                        id="status-list"
+                        class="status-list"
+                    ></div>
+
+                </article>
+
+            </div>
+
+
+            <div class="result-footer">
+
+                <span>
+                    Data provided through RDAP.
+                </span>
+
+                <span id="lookup-time"></span>
+
+            </div>
+
+        </section>
+
+
+        <!-- Footer -->
+        <footer class="footer">
+
+            <span>
+                Public registration data only
+            </span>
+
+            <span>•</span>
+
+            <span>
+                RDAP
+            </span>
+
+        </footer>
+
+    </main>
+
+
+    <script type="module" src="js/app.js"></script>
+
+</body>
+</html>
