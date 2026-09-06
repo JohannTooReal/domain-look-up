@@ -98,8 +98,8 @@ const result = document.getElementById("result");
 
 function cleanDomain(value) {
   return value.trim()
-    .replace(/^https?:\\/\\//i, "")
-    .replace(/^www\\./i, "")
+    .replace(/^https?:\/\//i, "")
+    .replace(/^www\./i, "")
     .split("/")[0]
     .toLowerCase();
 }
@@ -200,4 +200,3 @@ form.addEventListener("submit", async (event) => {
 });
 </script>
 </body>
-</html>
