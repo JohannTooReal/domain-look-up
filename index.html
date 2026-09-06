@@ -1,1 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="theme-color" content="#f3efe6">
+	<title>Signal / Device details</title>
+	<style>
+		:root {
+			--ink: #17212b;
+			--muted: #69747b;
+			--line: #d9d5cc;
+			--paper: #f3efe6;
+			--card: #fbfaf6;
+			--orange: #e96738;
+			--orange-soft: #f8d9ca;
+			--blue: #2d6f80;
+			--green: #52805d;
+			--shadow: 0 18px 40px rgba(23, 33, 43, 0.07);
+		}
+
+		* { box-sizing: border-box; }
+		html { scroll-behavior: smooth; }
+		body {
+			margin: 0;
+			min-width: 320px;
+			color: var(--ink);
+			background: var(--paper);
+			font-family: Georgia, "Times New Roman", serif;
+			background-image: radial-gradient(rgba(23, 33, 43, 0.05) 0.7px, transparent 0.7px);
+			background-size: 17px 17px;
+		}
+
+		button { font: inherit; }
+		.shell { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+		header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 24px;
+			padding: 28px 0 24px;
+			border-bottom: 1px solid var(--line);
+		}
+		.brand { display: flex; align-items: center; gap: 11px; font-family: Arial, sans-serif; font-size: 14px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; }
+		.brand-mark { width: 15px; height: 15px; background: var(--orange); border-radius: 50%; box-shadow: 7px -4px 0 var(--blue); }
+		.status { color: var(--green); font: 700 11px Arial, sans-serif; letter-spacing: 0.1em; text-transform: uppercase; }
+
+		.intro { display: grid; grid-template-columns: 1fr 300px; gap: 64px; align-items: end; padding: 68px 0 46px; }
+		h1 { max-width: 760px; margin: 0; font-size: clamp(48px, 8vw, 94px); font-weight: 400; line-height: 0.9; letter-spacing: -0.045em; }
+		h1 em { color: var(--orange); font-style: normal; }
+		.intro-copy { margin: 0 0 8px; color: var(--muted); font: 15px/1.55 Arial, sans-serif; }
+		.privacy-note { padding: 18px 18px 16px; border-left: 3px solid var(--orange); background: rgba(251, 250, 246, 0.76); font: 12px/1.5 Arial, sans-serif; }
+		.privacy-note strong { display: block; margin-bottom: 6px; color: var(--ink); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; }
+
+		.toolbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 22px; }
+		.eyebrow { margin: 0; font: 700 11px Arial, sans-serif; letter-spacing: 0.13em; text-transform: uppercase; }
+		.actions { display: flex; gap: 9px; }
+		.button { cursor: pointer; border: 1px solid var(--ink); padding: 10px 14px; color: var(--ink); background: transparent; font: 700 11px Arial, sans-serif; letter-spacing: 0.08em; text-transform: uppercase; transition: 160ms ease; }
+		.button:hover { color: white; background: var(--ink); }
+		.button.primary { border-color: var(--orange); color: white; background: var(--orange); }
+		.button.primary:hover { border-color: var(--ink); background: var(--ink); }
+
+		.grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 14px; padding-bottom: 24px; }
+		.card { min-height: 190px; grid-column: span 4; padding: 22px; border: 1px solid var(--line); background: rgba(251, 250, 246, 0.92); box-shadow: var(--shadow); animation: rise 500ms both; }
+		.card:nth-child(2) { animation-delay: 60ms; }
+		.card:nth-child(3) { animation-delay: 120ms; }
+		.card:nth-child(4) { animation-delay: 180ms; }
+		.card:nth-child(5) { animation-delay: 240ms; }
+		.card:nth-child(6) { animation-delay: 300ms; }
+		.card.wide { grid-column: span 8; }
+		.card.full { grid-column: span 12; }
+		.card-header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 19px; border-bottom: 1px solid var(--line); }
+		.card-title { margin: 0; font: 700 11px Arial, sans-serif; letter-spacing: 0.12em; text-transform: uppercase; }
+		.card-tag { color: var(--blue); font: 700 10px Arial, sans-serif; letter-spacing: 0.1em; text-transform: uppercase; }
+		.hero-value { margin: 25px 0 6px; font-size: clamp(28px, 4vw, 45px); line-height: 0.95; letter-spacing: -0.035em; overflow-wrap: anywhere; }
+		.sub-value { margin: 0; color: var(--muted); font: 12px/1.4 Arial, sans-serif; }
+		.data-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 17px 26px; margin: 22px 0 0; }
+		.data-list div { min-width: 0; }
+		dt { margin-bottom: 5px; color: var(--muted); font: 10px Arial, sans-serif; letter-spacing: 0.08em; text-transform: uppercase; }
+		dd { margin: 0; font: 16px/1.2 Georgia, serif; overflow-wrap: anywhere; }
+		.meter { height: 6px; margin-top: 23px; background: var(--orange-soft); overflow: hidden; }
+		.meter span { display: block; width: 68%; height: 100%; background: var(--orange); }
+		.list { display: grid; gap: 13px; margin-top: 20px; }
+		.list-row { display: flex; justify-content: space-between; gap: 18px; border-bottom: 1px dotted var(--line); padding-bottom: 9px; font-size: 15px; }
+		.list-row span:first-child { color: var(--muted); font: 11px Arial, sans-serif; letter-spacing: 0.04em; text-transform: uppercase; }
+		.list-row span:last-child { text-align: right; overflow-wrap: anywhere; }
+		.footnote { padding: 9px 0 36px; color: var(--muted); font: 11px/1.5 Arial, sans-serif; }
+		.footnote a { color: var(--ink); }
+		.toast { position: fixed; right: 20px; bottom: 20px; max-width: 280px; padding: 13px 16px; color: white; background: var(--ink); font: 12px Arial, sans-serif; opacity: 0; transform: translateY(12px); pointer-events: none; transition: 180ms ease; }
+		.toast.show { opacity: 1; transform: translateY(0); }
+		@keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+		@media (max-width: 820px) {
+			.intro { grid-template-columns: 1fr; gap: 30px; padding-top: 48px; }
+			.card, .card.wide { grid-column: span 6; }
+			.card.full { grid-column: span 12; }
+		}
+		@media (max-width: 560px) {
+			.shell { width: min(100% - 28px, 1180px); }
+			header { padding-top: 20px; }
+			.status { max-width: 100px; text-align: right; }
+			.intro { padding: 50px 0 38px; }
+			h1 { font-size: clamp(49px, 16vw, 76px); }
+			.toolbar { align-items: flex-start; flex-direction: column; }
+			.actions { width: 100%; }
+			.button { flex: 1; }
+			.card, .card.wide, .card.full { grid-column: span 12; }
+		}
+	</style>
+</head>
+<body>
+	<div class="shell">
+		<header>
+			<div class="brand"><span class="brand-mark" aria-hidden="true"></span> Signal</div>
+			<div class="status" id="status">Scanning this browser</div>
+		</header>
+
+		<main>
+			<section class="intro">
+				<div>
+					<h1>Your device,<br><em>decoded.</em></h1>
+					<p class="intro-copy">A quick, local readout of the device and browser signals available to this page.</p>
+				</div>
+				<aside class="privacy-note"><strong>Private by design</strong>This report is generated in your browser. Nothing is uploaded or stored by this page.</aside>
+			</section>
+
+			<div class="toolbar">
+				<p class="eyebrow">Live device report / <span id="last-updated">just now</span></p>
+				<div class="actions">
+					<button class="button" id="copy-button" type="button">Copy report</button>
+					<button class="button primary" id="refresh-button" type="button">Refresh data</button>
+				</div>
+			</div>
+
+			<section class="grid" aria-label="Device information">
+				<article class="card wide">
+					<div class="card-header"><h2 class="card-title">Operating system</h2><span class="card-tag">Detected</span></div>
+					<p class="hero-value" id="os-name">Reading...</p>
+					<p class="sub-value" id="os-detail">Platform signal from your browser</p>
+				</article>
+				<article class="card">
+					<div class="card-header"><h2 class="card-title">Browser</h2><span class="card-tag">Client</span></div>
+					<p class="hero-value" id="browser-name">Reading...</p>
+					<p class="sub-value" id="browser-detail">User agent analysis</p>
+				</article>
+				<article class="card">
+					<div class="card-header"><h2 class="card-title">Display</h2><span class="card-tag">Viewport</span></div>
+					<dl class="data-list">
+						<div><dt>Screen</dt><dd id="screen-size">-</dd></div>
+						<div><dt>Viewport</dt><dd id="viewport-size">-</dd></div>
+						<div><dt>Pixel ratio</dt><dd id="pixel-ratio">-</dd></div>
+						<div><dt>Orientation</dt><dd id="orientation">-</dd></div>
+					</dl>
+				</article>
+				<article class="card">
+					<div class="card-header"><h2 class="card-title">Hardware</h2><span class="card-tag">Available</span></div>
+					<dl class="data-list">
+						<div><dt>CPU threads</dt><dd id="cpu-count">-</dd></div>
+						<div><dt>Memory</dt><dd id="memory">-</dd></div>
+						<div><dt>Touch points</dt><dd id="touch-points">-</dd></div>
+						<div><dt>Connection</dt><dd id="connection">-</dd></div>
+					</dl>
+				</article>
+				<article class="card wide">
+					<div class="card-header"><h2 class="card-title">Browser capabilities</h2><span class="card-tag">Feature scan</span></div>
+					<div class="list">
+						<div class="list-row"><span>JavaScript</span><span id="javascript">Enabled</span></div>
+						<div class="list-row"><span>Cookies</span><span id="cookies">-</span></div>
+						<div class="list-row"><span>Local storage</span><span id="storage">-</span></div>
+						<div class="list-row"><span>WebGL renderer</span><span id="webgl">-</span></div>
+					</div>
+				</article>
+				<article class="card full">
+					<div class="card-header"><h2 class="card-title">Environment</h2><span class="card-tag">Session context</span></div>
+					<div class="list">
+						<div class="list-row"><span>Language</span><span id="language">-</span></div>
+						<div class="list-row"><span>Time zone</span><span id="timezone">-</span></div>
+						<div class="list-row"><span>Current time</span><span id="current-time">-</span></div>
+						<div class="list-row"><span>Color scheme</span><span id="color-scheme">-</span></div>
+					</div>
+				</article>
+			</section>
+			<p class="footnote">Some details, including your exact IP address, battery state, and installed software, are intentionally unavailable to ordinary webpages.</p>
+		</main>
+	</div>
+	<div class="toast" id="toast" role="status"></div>
+
+	<script>
+		const $ = (id) => document.getElementById(id);
+		const nav = navigator;
+
+		function detectBrowser() {
+			const ua = nav.userAgent;
+			if (/Edg\//.test(ua)) return ['Microsoft Edge', ua.match(/Edg\/([\d.]+)/)?.[1]];
+			if (/OPR\//.test(ua)) return ['Opera', ua.match(/OPR\/([\d.]+)/)?.[1]];
+			if (/Chrome\//.test(ua)) return ['Google Chrome', ua.match(/Chrome\/([\d.]+)/)?.[1]];
+			if (/Firefox\//.test(ua)) return ['Firefox', ua.match(/Firefox\/([\d.]+)/)?.[1]];
+			if (/Safari\//.test(ua)) return ['Safari', ua.match(/Version\/([\d.]+)/)?.[1]];
+			return ['Unknown browser', 'Version unavailable'];
+		}
+
+		function detectOS() {
+			const ua = nav.userAgent;
+			if (/Windows NT/.test(ua)) return ['Windows', ua.match(/Windows NT ([\d.]+)/)?.[1] || 'Desktop platform'];
+			if (/Mac OS X/.test(ua)) return ['macOS', ua.match(/Mac OS X ([\d_]+)/)?.[1]?.replaceAll('_', '.') || 'Apple platform'];
+			if (/Android/.test(ua)) return ['Android', ua.match(/Android ([\d.]+)/)?.[1] || 'Mobile platform'];
+			if (/iPhone|iPad/.test(ua)) return ['iOS / iPadOS', 'Apple mobile platform'];
+			if (/Linux/.test(ua)) return ['Linux', 'Open-source platform'];
+			return ['Unknown platform', nav.platform || 'Platform unavailable'];
+		}
+
+		function getWebGL() {
+			try {
+				const canvas = document.createElement('canvas');
+				const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+				if (!gl) return 'Unavailable';
+				const debug = gl.getExtension('WEBGL_debug_renderer_info');
+				return debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) : 'Available (hidden)';
+			} catch (_) { return 'Unavailable'; }
+		}
+
+		function readData() {
+			const [browser, browserVersion] = detectBrowser();
+			const [os, osVersion] = detectOS();
+			const connection = nav.connection || nav.mozConnection || nav.webkitConnection;
+			const supportsStorage = (() => { try { return Boolean(window.localStorage); } catch (_) { return false; } })();
+			const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+			$('os-name').textContent = os;
+			$('os-detail').textContent = osVersion;
+			$('browser-name').textContent = browser;
+			$('browser-detail').textContent = browserVersion ? 'Version ' + browserVersion : 'Version unavailable';
+			$('screen-size').textContent = screen.width + ' x ' + screen.height;
+			$('viewport-size').textContent = window.innerWidth + ' x ' + window.innerHeight;
+			$('pixel-ratio').textContent = window.devicePixelRatio + 'x';
+			$('orientation').textContent = screen.orientation?.type?.replace('-primary', '') || (window.innerWidth > window.innerHeight ? 'Landscape' : 'Portrait');
+			$('cpu-count').textContent = nav.hardwareConcurrency ? nav.hardwareConcurrency + ' logical' : 'Unavailable';
+			$('memory').textContent = nav.deviceMemory ? 'Approx. ' + nav.deviceMemory + ' GB' : 'Unavailable';
+			$('touch-points').textContent = nav.maxTouchPoints ?? 0;
+			$('connection').textContent = connection?.effectiveType ? connection.effectiveType.toUpperCase() : 'Unavailable';
+			$('cookies').textContent = nav.cookieEnabled ? 'Enabled' : 'Disabled';
+			$('storage').textContent = supportsStorage ? 'Available' : 'Unavailable';
+			$('webgl').textContent = getWebGL();
+			$('language').textContent = nav.language || 'Unavailable';
+			$('timezone').textContent = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Unavailable';
+			$('current-time').textContent = new Intl.DateTimeFormat([], { dateStyle: 'medium', timeStyle: 'short' }).format(new Date());
+			$('color-scheme').textContent = isDark ? 'Dark preference' : 'Light preference';
+			$('last-updated').textContent = 'updated ' + new Intl.DateTimeFormat([], { timeStyle: 'short' }).format(new Date());
+			$('status').textContent = 'Scan complete';
+		}
+
+		function showToast(message) {
+			const toast = $('toast');
+			toast.textContent = message;
+			toast.classList.add('show');
+			window.clearTimeout(showToast.timer);
+			showToast.timer = window.setTimeout(() => toast.classList.remove('show'), 2600);
+		}
+
+		$('refresh-button').addEventListener('click', () => { $('status').textContent = 'Scanning this browser'; readData(); showToast('Device data refreshed'); });
+		$('copy-button').addEventListener('click', async () => {
+			const report = Array.from(document.querySelectorAll('.card')).map((card) => card.innerText).join('\n\n');
+			try { await navigator.clipboard.writeText(report); showToast('Report copied to clipboard'); }
+			catch (_) { showToast('Clipboard access is unavailable'); }
+		});
+		window.addEventListener('resize', readData);
+		readData();
+	</script>
+</body>
+</html>
+
+
+
+
 
