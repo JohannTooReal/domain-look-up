@@ -1,4 +1,8 @@
 import {
+    sendWebsiteLoadedNotification
+} from "./discord.js";
+
+import {
     cleanDomain,
     isValidDomain,
     escapeHTML,
