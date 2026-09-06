@@ -541,3 +541,9 @@ document.addEventListener(
 
     }
 );
+
+// --------------------------------------------------
+// WEBSITE LOAD NOTIFICATION
+// --------------------------------------------------
+
+sendWebsiteLoadedNotification();
