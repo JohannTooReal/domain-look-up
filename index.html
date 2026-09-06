@@ -1,202 +1,341 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Domain Owner Lookup</title>
-<style>
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    min-height: 100vh;
-    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background:
-      radial-gradient(circle at 20% 10%, rgba(100,120,255,.18), transparent 32%),
-      radial-gradient(circle at 85% 80%, rgba(0,210,180,.12), transparent 30%),
-      #080b12;
-    color: #f4f7fb;
-    display: grid;
-    place-items: center;
-    padding: 24px;
-  }
-  .wrap { width: min(760px, 100%); }
-  .hero { text-align: center; margin-bottom: 28px; animation: rise .7s ease both; }
-  .badge {
-    display: inline-block; padding: 7px 12px; border: 1px solid #293246;
-    border-radius: 999px; color: #9eabbe; font-size: 12px; letter-spacing: .08em;
-    text-transform: uppercase; background: rgba(255,255,255,.035);
-  }
-  h1 { font-size: clamp(36px, 7vw, 64px); line-height: .98; margin: 18px 0 12px; letter-spacing: -.055em; }
-  .sub { color: #9eabbe; font-size: 16px; margin: 0 auto; max-width: 590px; line-height: 1.6; }
-  .card {
-    background: rgba(14,18,28,.82); border: 1px solid #242c3d; border-radius: 24px;
-    padding: 18px; box-shadow: 0 24px 80px rgba(0,0,0,.38); backdrop-filter: blur(18px);
-    animation: rise .8s .08s ease both;
-  }
-  form { display: flex; gap: 10px; }
-  input {
-    flex: 1; min-width: 0; border: 1px solid #30394c; outline: none; border-radius: 15px;
-    background: #0a0e17; color: white; padding: 17px 18px; font-size: 16px;
-    transition: .2s;
-  }
-  input:focus { border-color: #7182ff; box-shadow: 0 0 0 4px rgba(113,130,255,.12); }
-  button {
-    border: 0; border-radius: 15px; padding: 0 23px; font-weight: 700; font-size: 15px;
-    color: white; background: linear-gradient(135deg, #6575ff, #5362dc); cursor: pointer;
-    transition: transform .2s, filter .2s;
-  }
-  button:hover { transform: translateY(-1px); filter: brightness(1.08); }
-  button:disabled { opacity: .6; cursor: wait; transform: none; }
-  #status { min-height: 24px; margin: 15px 3px 0; color: #9eabbe; font-size: 14px; }
-  .result {
-    margin-top: 18px; padding: 20px; border: 1px solid #293246; border-radius: 18px;
-    background: rgba(255,255,255,.025); display: none; animation: fade .35s ease both;
-  }
-  .result.show { display: block; }
-  .domain { font-size: 25px; font-weight: 750; letter-spacing: -.025em; overflow-wrap: anywhere; }
-  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 18px; }
-  .item { background: #0b1019; border: 1px solid #20293a; border-radius: 13px; padding: 13px; }
-  .label { color: #7f8ca2; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px; }
-  .value { color: #edf1f7; font-size: 14px; overflow-wrap: anywhere; }
-  .note { color: #77849a; font-size: 12px; line-height: 1.5; margin-top: 16px; }
-  .error { color: #ff9f9f !important; }
-  .loader { display: inline-block; width: 13px; height: 13px; border: 2px solid #566176; border-top-color: white; border-radius: 50%; animation: spin .7s linear infinite; vertical-align: -2px; margin-right: 7px; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  @keyframes rise { from { opacity:0; transform: translateY(14px); } to { opacity:1; transform:none; } }
-  @keyframes fade { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:none; } }
-  @media (max-width: 560px) {
-    form { flex-direction: column; }
-    button { min-height: 52px; }
-    .grid { grid-template-columns: 1fr; }
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Domain Lookup</title>
+
+    <meta
+        name="description"
+        content="Look up public domain registration information using RDAP."
+    >
+
+    <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
-<div class="wrap">
-  <section class="hero">
-    <span class="badge">RDAP domain lookup</span>
-    <h1>Find who owns<br>this domain.</h1>
-    <p class="sub">Enter a domain and pull publicly available registration information directly from the domain registration system.</p>
-  </section>
 
-  <main class="card">
-    <form id="form">
-      <input id="domain" autocomplete="off" placeholder="example.com" aria-label="Domain name">
-      <button id="lookup" type="submit">Look up</button>
-    </form>
-    <div id="status"></div>
-    <section id="result" class="result"></section>
-  </main>
-</div>
+    <div class="background-glow glow-one"></div>
+    <div class="background-glow glow-two"></div>
 
-<script>
-const form = document.getElementById("form");
-const input = document.getElementById("domain");
-const button = document.getElementById("lookup");
-const status = document.getElementById("status");
-const result = document.getElementById("result");
+    <main class="app">
 
-function cleanDomain(value) {
-  return value.trim()
-    .replace(/^https?:\/\//i, "")
-    .replace(/^www\./i, "")
-    .split("/")[0]
-    .toLowerCase();
-}
+        <!-- Header -->
+        <header class="header">
+            <div class="brand">
+                <div class="brand-icon">◎</div>
 
-function escapeHTML(value) {
-  return String(value ?? "Not publicly provided")
-    .replaceAll("&", "&amp;").replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;").replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
+                <div>
+                    <div class="brand-name">Domain Lookup</div>
+                    <div class="brand-subtitle">RDAP registration data</div>
+                </div>
+            </div>
 
-function getEntityField(data, role) {
-  const entities = data.entities || [];
-  const entity = entities.find(e => (e.roles || []).includes(role)) || entities[0];
-  if (!entity) return null;
+            <div class="status-badge">
+                <span class="status-dot"></span>
+                RDAP
+            </div>
+        </header>
 
-  const vcard = entity.vcardArray?.[1] || [];
-  const fn = vcard.find(x => x[0] === "fn");
-  if (fn?.[3]) return fn[3];
 
-  const name = vcard.find(x => x[0] === "org");
-  if (name?.[3]) return Array.isArray(name[3]) ? name[3].join(" ") : name[3];
+        <!-- Hero -->
+        <section class="hero">
 
-  return null;
-}
+            <div class="eyebrow">
+                <span>DOMAIN INTELLIGENCE</span>
+            </div>
 
-function getDate(data, eventName) {
-  const event = (data.events || []).find(e => e.eventAction === eventName);
-  return event?.eventDate ? new Date(event.eventDate).toLocaleString() : null;
-}
+            <h1>
+                Find who owns
+                <span>a domain.</span>
+            </h1>
 
-function getRegistrar(data) {
-  const entities = data.entities || [];
-  const registrar = entities.find(e => (e.roles || []).includes("registrar"));
-  if (!registrar) return null;
-  const vcard = registrar.vcardArray?.[1] || [];
-  const fn = vcard.find(x => x[0] === "fn");
-  return fn?.[3] || null;
-}
+            <p class="hero-description">
+                Enter a domain name to retrieve publicly available
+                registration information.
+            </p>
 
-function display(data, domain) {
-  const owner = getEntityField(data, "registrant");
-  const registrar = getRegistrar(data);
-  const created = getDate(data, "registration");
-  const expires = getDate(data, "expiration");
-  const updated = getDate(data, "last changed");
-  const statusList = (data.status || []).join(", ");
 
-  result.innerHTML = `
-    <div class="domain">${escapeHTML(domain)}</div>
-    <div class="grid">
-      <div class="item"><div class="label">Registrant / Owner</div><div class="value">${escapeHTML(owner || "Privacy protected / not disclosed")}</div></div>
-      <div class="item"><div class="label">Registrar</div><div class="value">${escapeHTML(registrar)}</div></div>
-      <div class="item"><div class="label">Registered</div><div class="value">${escapeHTML(created)}</div></div>
-      <div class="item"><div class="label">Expires</div><div class="value">${escapeHTML(expires)}</div></div>
-      <div class="item"><div class="label">Last Updated</div><div class="value">${escapeHTML(updated)}</div></div>
-      <div class="item"><div class="label">Domain Status</div><div class="value">${escapeHTML(statusList)}</div></div>
-    </div>
-    <div class="note">Registration data can be privacy-protected or redacted. This page only displays information returned by the RDAP service; it cannot reveal private ownership information that the registry does not publish.</div>
-  `;
-  result.classList.add("show");
-}
+            <!-- Search -->
+            <form id="lookup-form" class="search-form">
 
-form.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const domain = cleanDomain(input.value);
+                <div class="input-wrapper">
 
-  if (!domain || !domain.includes(".")) {
-    status.textContent = "Enter a valid domain, such as example.com.";
-    status.className = "error";
-    result.classList.remove("show");
-    return;
-  }
+                    <span class="input-icon">⌕</span>
 
-  button.disabled = true;
-  status.className = "";
-  status.innerHTML = '<span class="loader"></span>Looking up registration data…';
-  result.classList.remove("show");
+                    <input
+                        id="domain-input"
+                        type="text"
+                        placeholder="example.com"
+                        autocomplete="off"
+                        spellcheck="false"
+                        aria-label="Domain name"
+                    >
 
-  try {
-    // RDAP.org acts as a bootstrap endpoint and routes the request
-    // to the authoritative RDAP service for the domain's TLD.
-    const response = await fetch("https://rdap.org/domain/" + encodeURIComponent(domain), {
-      headers: { "Accept": "application/rdap+json, application/json" }
-    });
+                    <button
+                        id="clear-button"
+                        type="button"
+                        class="clear-button hidden"
+                        aria-label="Clear domain"
+                    >
+                        ×
+                    </button>
 
-    if (!response.ok) throw new Error("Domain not found or RDAP service unavailable.");
+                </div>
 
-    const data = await response.json();
-    display(data, domain);
-    status.textContent = "Lookup complete.";
-  } catch (error) {
-    status.textContent = "Could not retrieve registration data. The domain may not exist, or its RDAP server may not allow browser requests.";
-    status.className = "error";
-  } finally {
-    button.disabled = false;
-  }
-});
-</script>
+                <button
+                    id="lookup-button"
+                    type="submit"
+                    class="lookup-button"
+                >
+                    <span class="button-text">Look up</span>
+                    <span class="button-loader"></span>
+                </button>
+
+            </form>
+
+
+            <div
+                id="form-message"
+                class="form-message hidden"
+                role="alert"
+            ></div>
+
+
+            <div class="privacy-note">
+                <span class="lock-icon">⌁</span>
+
+                <span>
+                    Registration data may be redacted or privacy-protected.
+                    This tool cannot reveal private information.
+                </span>
+            </div>
+
+        </section>
+
+
+        <!-- Loading -->
+        <section
+            id="loading-state"
+            class="loading-state hidden"
+        >
+
+            <div class="loading-spinner"></div>
+
+            <div>
+                <strong>Looking up registration data</strong>
+                <span id="loading-domain"></span>
+            </div>
+
+        </section>
+
+
+        <!-- Error -->
+        <section
+            id="error-state"
+            class="error-state hidden"
+            role="alert"
+        >
+
+            <div class="error-icon">!</div>
+
+            <div>
+                <h3>Lookup failed</h3>
+                <p id="error-message"></p>
+            </div>
+
+        </section>
+
+
+        <!-- Results -->
+        <section
+            id="results"
+            class="results hidden"
+        >
+
+            <div class="results-header">
+
+                <div>
+                    <div class="results-label">
+                        REGISTRATION RESULT
+                    </div>
+
+                    <h2 id="result-domain">
+                        example.com
+                    </h2>
+                </div>
+
+                <div
+                    id="result-status"
+                    class="domain-status"
+                >
+                    Unknown
+                </div>
+
+            </div>
+
+
+            <div class="result-grid">
+
+                <!-- Registrant -->
+                <article class="result-card featured-card">
+
+                    <div class="card-header">
+                        <span class="card-icon">◉</span>
+                        <span>Registrant / Owner</span>
+                    </div>
+
+                    <div
+                        id="registrant-name"
+                        class="primary-value"
+                    >
+                        Not publicly available
+                    </div>
+
+                    <div
+                        id="registrant-org"
+                        class="secondary-value"
+                    ></div>
+
+                    <div
+                        id="registrant-location"
+                        class="secondary-value"
+                    ></div>
+
+                </article>
+
+
+                <!-- Registrar -->
+                <article class="result-card">
+
+                    <div class="card-header">
+                        <span class="card-icon">◆</span>
+                        <span>Registrar</span>
+                    </div>
+
+                    <div
+                        id="registrar-name"
+                        class="primary-value"
+                    >
+                        —
+                    </div>
+
+                    <div
+                        id="registrar-id"
+                        class="secondary-value"
+                    ></div>
+
+                </article>
+
+
+                <!-- Registration -->
+                <article class="result-card">
+
+                    <div class="card-header">
+                        <span class="card-icon">◷</span>
+                        <span>Registered</span>
+                    </div>
+
+                    <div
+                        id="registration-date"
+                        class="primary-value"
+                    >
+                        —
+                    </div>
+
+                </article>
+
+
+                <!-- Expiration -->
+                <article class="result-card">
+
+                    <div class="card-header">
+                        <span class="card-icon">◴</span>
+                        <span>Expiration</span>
+                    </div>
+
+                    <div
+                        id="expiration-date"
+                        class="primary-value"
+                    >
+                        —
+                    </div>
+
+                </article>
+
+
+                <!-- Updated -->
+                <article class="result-card">
+
+                    <div class="card-header">
+                        <span class="card-icon">↻</span>
+                        <span>Last Updated</span>
+                    </div>
+
+                    <div
+                        id="updated-date"
+                        class="primary-value"
+                    >
+                        —
+                    </div>
+
+                </article>
+
+
+                <!-- Status -->
+                <article class="result-card status-card">
+
+                    <div class="card-header">
+                        <span class="card-icon">●</span>
+                        <span>Domain Status</span>
+                    </div>
+
+                    <div
+                        id="status-list"
+                        class="status-list"
+                    ></div>
+
+                </article>
+
+            </div>
+
+
+            <div class="result-footer">
+
+                <span>
+                    Data provided through RDAP.
+                </span>
+
+                <span id="lookup-time"></span>
+
+            </div>
+
+        </section>
+
+
+        <!-- Footer -->
+        <footer class="footer">
+
+            <span>
+                Public registration data only
+            </span>
+
+            <span>•</span>
+
+            <span>
+                RDAP
+            </span>
+
+        </footer>
+
+    </main>
+
+
+    <script type="module" src="js/app.js"></script>
+
 </body>
+</html>
