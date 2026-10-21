@@ -1,11 +1,3 @@
-export async function sendWebsiteLoadedNotification() {
-
-    console.log("Discord notification function ran!");
-
-    // rest of your code...
-}
-
-
 // --------------------------------------------------
 // Discord Webhook
 // --------------------------------------------------
